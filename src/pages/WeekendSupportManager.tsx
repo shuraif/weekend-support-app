@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Calendar } from 'lucide-react';
-import { useSelector, useDispatch } from 'react-redux';
-import { getScheduleApi, getTeamApi } from './../redux/Actions';
-import TeamManagement from '../components/TeamManagement'
+import { useState, useEffect } from 'react';
+import { getScheduleApi, getTeamApi } from '../redux/Actions';
 import ScheduleManagement from '../components/ScheduleManagement';
 import CalendarLayout from '../components/CalendarLayout';
 import ActivityLogs from '../components/ActivityLogs';
+import { useAppDispatch } from '@/hooks/use-app-dispatch';
 
 const WeekendSupportManager = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {

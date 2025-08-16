@@ -2,8 +2,7 @@
 import {
   BrowserRouter as Router,
   Routes,
-  Route,
-  Navigate
+  Route
 } from 'react-router-dom'
 
 import MainLayout from './MainLayout'

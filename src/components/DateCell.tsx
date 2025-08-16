@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import { useState} from 'react';
 import { format } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { Plus } from 'lucide-react';
@@ -11,7 +11,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -22,15 +21,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from '@/hooks/use-app-dispatch';
 import {addAssignee, getScheduleApi} from '@/redux/Actions';
+import { Member } from '@/types/member';
+
+interface DateCellProps {
+  day: Date;  
+  currentDate: Date;
+  assignments: Record<string, any>;
+  handleDateClick: (date: Date) => void;
+}
 
 const DateCell = ({ 
   day, 
   currentDate, 
   assignments, 
   handleDateClick,
-}) => {
+} : DateCellProps) => {
  
   //const dateKey = day.toISOString().split('T')[0];
   const dateKey = format(day, 'yyyy-MM-dd');
@@ -38,25 +45,25 @@ const DateCell = ({
   const assignment = assignments[dateKey];
   const isWeekendDay = day.getDay() === 0 || day.getDay() === 6; // Only Saturday
   const isCurrentMonthDay = day.getMonth() === currentDate.getMonth();
-  const swapInfo = useSelector((state) => state.easyquiz.swapInfo);
-  const deleteInfo = useSelector((state) => state.easyquiz.deleteInfo);
+  const swapInfo = useSelector((state : any) => state.easyquiz.swapInfo);
+  const deleteInfo = useSelector((state : any) => state.easyquiz.deleteInfo);
   const isSelected = swapInfo.selectedDate === dateKey || swapInfo.swapWithDate === dateKey || deleteInfo.selectedDates.includes(dateKey);
-  const team = useSelector((state) => state.easyquiz.team);
-  const dispatch = useDispatch();
+  const team = useSelector((state : any) => state.easyquiz.team);
+  const dispatch = useAppDispatch();
 
   const [selectedPrimaryValue, setSelectedPrimaryValue] = useState('')
   const [selectedSecondaryValue, setSelectedSecondaryValue] = useState('')
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handlePrimaryValueChange = (newValue) => {
+  const handlePrimaryValueChange = (newValue: string) => {
     setSelectedPrimaryValue(newValue)
   }
 
-  const handleSecondaryValueChange = (newValue) => {
+  const handleSecondaryValueChange = (newValue: string) => {
     setSelectedSecondaryValue(newValue)
   }
 
-  const handleSubmitNewAssignment = (e) => {
+  const handleSubmitNewAssignment = (e: React.FormEvent) => {
     e.preventDefault();
     setIsDialogOpen(false);
     if(!selectedPrimaryValue || !selectedSecondaryValue) {
@@ -73,8 +80,8 @@ const DateCell = ({
 
     const newAssignment = {
       date: dateKey,
-      primaryId: team.list.find(member => member.name === selectedPrimaryValue)?.id,
-      secondaryId: team.list.find(member => member.name === selectedSecondaryValue)?.id,
+      primaryId: team.list.find((member: { name: string; }) => member.name === selectedPrimaryValue)?.id,
+      secondaryId: team.list.find((member: { name: string; }) => member.name === selectedSecondaryValue)?.id,
   };
 
   dispatch(addAssignee(newAssignment)).then(() => {
@@ -156,7 +163,7 @@ const DateCell = ({
                 <SelectValue placeholder="Select an option" />
               </SelectTrigger>
               <SelectContent>
-                {team.list.map((member) => (
+                {team.list.map((member: Member) => (
                   <SelectItem key={member.id} value={member.name}>
                     {member.name}
                   </SelectItem>
@@ -172,7 +179,7 @@ const DateCell = ({
                 <SelectValue placeholder="Select an option" />
               </SelectTrigger>
               <SelectContent>
-                {team.list.map((member) => (
+                {team.list.map((member: Member) => (
                   <SelectItem key={member.id} value={member.name}>
                     {member.name}
                   </SelectItem>

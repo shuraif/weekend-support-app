@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
 import { CalendarSync, RefreshCw, Settings, Trash2 } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
+import { useAppDispatch } from '@/hooks/use-app-dispatch';
 import { swapAssigneeApi, deleteSchedulesApi, getScheduleApi, getActivityLogsApi } from '../redux/Actions'
 import { updateSwapInfo, updateDeleteInfo } from '../redux/appSlice';
 import { Button } from "@/components/ui/button";
 
 const ScheduleManagement = ({  }) => {
-  const dispatch = useDispatch();
-  const schedules = useSelector((state) => state.easyquiz.schedule);
-  const isLoading = useSelector((state) => state.easyquiz.loading);
-  const swapInfo = useSelector((state) => state.easyquiz.swapInfo);
-  const deleteInfo = useSelector((state) => state.easyquiz.deleteInfo);
+  const dispatch = useAppDispatch();
+  const schedules = useSelector((state : any) => state.easyquiz.schedule);
+  const isLoading = useSelector((state: any) => state.easyquiz.loading);
+  const swapInfo = useSelector((state: any) => state.easyquiz.swapInfo);
+  const deleteInfo = useSelector((state: any) => state.easyquiz.deleteInfo);
 
 
-  const handleCheckboxChange = (value) => {
+  const handleCheckboxChange = (value: string) => {
     dispatch(updateSwapInfo({
-      swapTypes: swapInfo.swapTypes.includes(value) ? swapInfo.swapTypes.filter(item => item !== value) : [...swapInfo.swapTypes, value]
+      swapTypes: swapInfo.swapTypes.includes(value) ? swapInfo.swapTypes.filter((item: string) => item !== value) : [...swapInfo.swapTypes, value]
     }));
     
   };

@@ -1,6 +1,8 @@
-import React from 'react';
-
-const CalendarHeader = ({ currentDate, navigateMonth }) => {
+interface CalendarHeaderProps {
+  currentDate: Date;
+  navigateMonth: (direction: number) => void;
+}
+const CalendarHeader = ({ currentDate, navigateMonth }:CalendarHeaderProps) => {
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'

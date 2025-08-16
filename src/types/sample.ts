@@ -1,10 +1,9 @@
-export interface Exam  {
-    examId: number;
-    examName: string;
-    description: string;
-    duration: number;
-    numberOfQuestions: number;
-    difficulty: string;
-    createdAt: string;
-    updatedAt: string;
+export interface User  {
+    id: number;
+    name: string;
+    email: string;
+    createdOn: Date;
+    lastLogin: Date;
+    isActive: boolean;
+    team: string;
 };
