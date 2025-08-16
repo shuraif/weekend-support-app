@@ -52,7 +52,7 @@ const onSubmit = async (data: LoginFormValues) => {
     useEffect(() => {
       if (loginDetails.isLoggedIn) {
         console.log("User is logged in, redirecting to dashboard");
-        navigate("/home/dashboard");
+        navigate("/home/weekendsupport");
       }
     }, [loginDetails]);
 

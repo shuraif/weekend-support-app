@@ -4,7 +4,9 @@ import {
   loginUserApi,
   getScheduleApi,
   getTeamApi,
-  swapAssigneeApi
+  swapAssigneeApi,
+  getActivityLogsApi,
+  getAssigneeReportApi
 
 } from '@/redux/Actions';
 
@@ -44,6 +46,25 @@ interface AppState {
     swapTypes: string[];
     selectedDate: string | null;
     swapWithDate: string | null;
+  },
+  deleteInfo: {
+    isLoading: boolean;
+    isError: boolean;
+    errorMessage: string | undefined;
+    deleteMode: boolean;
+    selectedDates: string[];
+  },
+  activityLogs: {
+    isLoading: boolean;
+    isError: boolean;
+    errorMessage: string | undefined;
+    list: any[]; 
+  },
+  assigneeReport: {
+    isLoading: boolean;
+    isError: boolean;
+    errorMessage: string | undefined;
+    list: any[]; 
   }
 }
 
@@ -75,6 +96,25 @@ const initialState: AppState = {
     swapTypes: [],
     selectedDate: null,
     swapWithDate: null
+  },
+  deleteInfo: {
+    isLoading: false,
+    isError: false,
+    errorMessage: undefined,
+    deleteMode: false,
+    selectedDates: []
+  },
+  activityLogs: {
+    isLoading: false,
+    isError: false,
+    errorMessage: undefined,
+    list: []
+  },
+  assigneeReport: {
+    isLoading: false,
+    isError: false,
+    errorMessage: undefined,
+    list: []
   }
 };
 
@@ -99,8 +139,18 @@ const appSlice = createSlice({
             ...state.swapInfo,
             ...action.payload
           };
+          state.deleteInfo.deleteMode = false;
           console.log("Swap info updated:", state.swapInfo);
     },
+
+    updateDeleteInfo: (state, action) => {
+      state.deleteInfo = {
+        ...state.deleteInfo,
+        ...action.payload
+      };
+      state.swapInfo.swapMode = false;
+      console.log("Delete info updated:", state.deleteInfo);
+    }
 
   
   },
@@ -144,7 +194,6 @@ const appSlice = createSlice({
       state.schedule.isLoading = true;
       state.schedule.isError = false;
       state.schedule.errorMessage = undefined;
-      state.schedule.list = [];
     })
     .addCase(getScheduleApi.fulfilled, (state, { payload }) => {
       state.schedule.isLoading = false;
@@ -185,7 +234,7 @@ const appSlice = createSlice({
       // state.schedule.list = state.schedule.list.map((item) =>
       //   item.date === payload.date ? payload : item
       // );
-      state.schedule.list = payload; // Update with the new schedule after swap
+      //state.schedule.list = payload; // Update with the new schedule after swap
       state.swapInfo.swapMode = false; // Reset swap mode after successful swap
       state.swapInfo.selectedDate = null; // Reset selected date after swap
       state.swapInfo.swapWithDate = null; // Reset swap with date after swap
@@ -197,12 +246,45 @@ const appSlice = createSlice({
       state.schedule.isError = true;
       state.schedule.errorMessage =
         (action.payload as any)?.message || "Something went wrong";
-    });
-   
+    })
 
+    .addCase(getActivityLogsApi.pending, (state) => {
+      state.activityLogs.isLoading = true;
+      state.activityLogs.isError = false;
+      state.activityLogs.errorMessage = undefined;
+      state.activityLogs.list = [];
+    })
+    .addCase(getActivityLogsApi.fulfilled, (state, { payload }) => {
+      state.activityLogs.isLoading = false;
+      state.activityLogs.list = payload;
+    })
+    .addCase(getActivityLogsApi.rejected, (state, action) => {
+      state.activityLogs.isLoading = false;
+      state.activityLogs.isError = true;
+      state.activityLogs.errorMessage =
+        (action.payload as any)?.message || "Something went wrong";
+    })
+
+    .addCase(getAssigneeReportApi.pending, (state) => {
+      state.assigneeReport.isLoading = true;
+      state.assigneeReport.isError = false;
+      state.assigneeReport.errorMessage = undefined;
+      state.assigneeReport.list = [];
+    })
+    .addCase(getAssigneeReportApi.fulfilled, (state, { payload }) => {
+      state.assigneeReport.isLoading = false;
+      state.assigneeReport.list = payload;
+    })
+    .addCase(getAssigneeReportApi.rejected, (state, action) => {   
+      state.assigneeReport.isLoading = false;
+      state.assigneeReport.isError = true;
+      state.assigneeReport.errorMessage =
+        (action.payload as any)?.message || "Something went wrong";
+    })
+  
   }
 });
 
-export const { logout, clearLoginError, updateSwapInfo } =
+export const { logout, clearLoginError, updateSwapInfo, updateDeleteInfo } =
   appSlice.actions;
 export default appSlice.reducer;

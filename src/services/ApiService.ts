@@ -21,7 +21,7 @@ class ApiService {
             if (user?.userId) {
               config.headers['userId'] = user.userId.toString();
             }
-            console.log('config',config);
+            //console.log('config',config);
             return config;
           });
 
@@ -54,6 +54,18 @@ class ApiService {
             return response;
         }catch(error:any){
             logApiDetails(this.baseUrl + url, 'POST', data, { error: error.response.data });
+            throw error;
+        }
+    }
+
+    async delete(url:String, data:[], enableLogging = false) {
+        let _confg = {}
+        try{
+            const response = await this.axiosInstance.delete(this.baseUrl + url, { data, ..._confg });
+            enableLogging && logApiDetails(this.baseUrl + url, 'DELETE', data, response.data)
+            return response;
+        }catch(error:any){
+            logApiDetails(this.baseUrl + url, 'DELETE', data, { error: error.response.data });
             throw error;
         }
     }

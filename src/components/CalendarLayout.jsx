@@ -19,7 +19,7 @@ const CalendarLayout = ({
 
   return (
     <div className="lg:col-span-3">
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded-lg shadow-sm p-2">
         <CalendarHeader 
           currentDate={currentDate} 
           navigateMonth={navigateMonth} 
