@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { RefreshCw, Settings } from 'lucide-react';
+import { CalendarSync, RefreshCw, Settings, Trash2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux'
-import { swapAssigneeApi } from '../redux/Actions'
-import { updateSwapInfo } from '../redux/appSlice';
+import { swapAssigneeApi, deleteSchedulesApi, getScheduleApi, getActivityLogsApi } from '../redux/Actions'
+import { updateSwapInfo, updateDeleteInfo } from '../redux/appSlice';
 import { Button } from "@/components/ui/button";
 
 const ScheduleManagement = ({  }) => {
   const dispatch = useDispatch();
   const schedules = useSelector((state) => state.easyquiz.schedule);
   const isLoading = useSelector((state) => state.easyquiz.loading);
-  const team = useSelector((state) => state.easyquiz.team);
   const swapInfo = useSelector((state) => state.easyquiz.swapInfo);
+  const deleteInfo = useSelector((state) => state.easyquiz.deleteInfo);
 
 
   const handleCheckboxChange = (value) => {
@@ -22,15 +22,38 @@ const ScheduleManagement = ({  }) => {
 
 
   const handleSwap = () => {
+    if(!swapInfo.selectedDate || !swapInfo.swapWithDate) {
+      alert('Please select two dates to swap.');
+      return;
+    }
+
+    if(!swapInfo.swapTypes || swapInfo.swapTypes.length === 0) {
+      alert('Please select at least one support type to swap.');
+      return;
+    }
     if (swapInfo.selectedDate && swapInfo.swapWithDate) {
-      console.log(`Swapping ${swapInfo.selectedDate} with ${swapInfo.swapWithDate} for ${swapInfo.supportTypes} assignment`);
       dispatch(swapAssigneeApi({
         datesToSwap: [swapInfo.selectedDate, swapInfo.swapWithDate],
         supportTypes: swapInfo.swapTypes
-      }))
-      
+        })).then(() => {
+          dispatch(getScheduleApi());
+          dispatch(getActivityLogsApi());
+        })
     }
   }
+
+  const handleDelete = () => {
+    if (deleteInfo.selectedDates.length > 0) {
+      dispatch(deleteSchedulesApi(deleteInfo.selectedDates))
+        .then(() => {
+          dispatch(getScheduleApi())
+          dispatch(updateDeleteInfo({ deleteMode: false, selectedDates: [] }));
+          dispatch(getActivityLogsApi());
+        });
+    } else {
+      alert('Please select dates to delete.');
+    }
+  };
 
   return (
     <div className="lg:col-span-1">
@@ -42,29 +65,40 @@ const ScheduleManagement = ({  }) => {
           Actions
         </h2>
 
-        {/* Swap Mode Toggle */}
-        {team.list.length > 0 && (
-          <button
-            onClick={() => {
+
+      <div className=" rounded-md grid grid-cols-2 gap-4 h-18">
+        <div className="flex items-center justify-center"  onClick={() => {
               dispatch(updateSwapInfo({ swapMode: !swapInfo.swapMode, selectedDate: null, swapWithDate: null }));
-            }}
-            className={`w-full px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center gap-2 ${
+            }}>
+          <div className={`w-20 h-20 rounded-full flex flex-col items-center justify-center ${
               swapInfo.swapMode
-                ? 'bg-red-600 text-white hover:bg-red-700'
-                : 'bg-green-600 text-white hover:bg-green-700'
-            }`}
-          >
-          
-            {swapInfo.swapMode ? 'Cancel' : 'Swap Assignee'}
-          </button>
-        )}
+                ? 'bg-red-100 text-white hover:bg-red-200'
+                : 'bg-green-100 text-black hover:bg-green-200'
+            }`}>
+            <CalendarSync className={`h-6 w-6 ${swapInfo.swapMode ? 'text-red-600' : 'text-green-600'}`} />
+            <span className={`text-xs  mt-1 ${swapInfo.swapMode ? 'text-red-600' : 'text-green-600'}`}> {swapInfo.swapMode ? 'Cancel' : 'Swap'} </span>
+          </div>
+        </div>
+        <div className="flex items-center justify-center"  onClick={() => {
+              dispatch(updateDeleteInfo({ deleteMode: !deleteInfo.deleteMode, selectedDates: [] }));
+            }}>
+          <div className={`w-20 h-20 rounded-full flex flex-col items-center justify-center ${
+              deleteInfo.deleteMode
+                ? 'bg-red-100 text-white hover:bg-red-200'
+                : 'bg-blue-100 text-black hover:bg-blue-200'
+            }`}>
+            <Trash2 className={`h-6 w-6 ${deleteInfo.deleteMode ? 'text-red-600' : 'text-blue-600'}`} />
+            <span className={`text-xs  mt-1 ${deleteInfo.deleteMode ? 'text-red-600' : 'text-blue-600'}`}> {deleteInfo.deleteMode ? 'Cancel' : 'Delete'} </span>
+          </div>
+        </div>
+      </div>
 
         
 
         
         {swapInfo.swapMode && (
           <>
-           <div role="group" className="flex gap-4 mt-4">
+           <div role="group" className="flex gap-4 mt-4 items-center justify-center gap-2">
       {[{ value: "primary", label: "Primary" }, { value: "secondary", label: "Secondary" }].map((option) => (
         <label key={option.value} className="flex items-center gap-2">
           <input
@@ -92,17 +126,33 @@ const ScheduleManagement = ({  }) => {
           </>
         )}
 
-{
-          swapInfo.selectedDate && swapInfo.swapWithDate && (
+      {
+          swapInfo.swapMode && swapInfo.selectedDate && swapInfo.swapWithDate && (
              <Button
           onClick={() => {
             handleSwap();
           }}
           disabled={isLoading}
-          className="w-full mt-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:bg-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center justify-center gap-2"
+          className="w-full mt-2 px-4 py-6 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:bg-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center justify-center gap-2"
         >
           <RefreshCw size={16} className={schedules.isLoading ? 'animate-spin' : ''} />
-          Proceed
+          Confirm Swap
+        </Button>
+
+          )
+        }
+
+              {
+          deleteInfo.deleteMode && (
+             <Button
+          onClick={() => {
+            handleDelete();
+          }}
+          disabled={isLoading}
+          className="w-full mt-4 px-4 py-6 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:bg-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500 flex items-center justify-center gap-2"
+        >
+          {/* <RefreshCw size={16} className={schedules.isLoading ? 'animate-spin' : ''} /> */}
+          Confirm Delete
         </Button>
 
           )

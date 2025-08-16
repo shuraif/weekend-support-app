@@ -2,7 +2,7 @@ import React from 'react';
 import DateCell from './DateCell';
 import { useSelector } from 'react-redux';
 import { format } from 'date-fns';
-import { updateSwapInfo } from '../redux/appSlice';
+import { updateSwapInfo, updateDeleteInfo } from '../redux/appSlice';
 import { useDispatch } from 'react-redux';
 
 const CalendarGrid = ({ 
@@ -11,6 +11,7 @@ const CalendarGrid = ({
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const schedules = useSelector((state) => state.easyquiz.schedule);
   const swapInfo = useSelector((state) => state.easyquiz.swapInfo);
+  const deleteInfo = useSelector((state) => state.easyquiz.deleteInfo);
   const dispatch = useDispatch();
 
   const getDaysInMonth = () => {
@@ -32,28 +33,30 @@ const CalendarGrid = ({
 
   const handleDateClick = (date) => {
 
-    console.log(`Clicked date: ${date}`);
-    if (!isWeekend(date) || !isCurrentMonth(date)) return;
+    if ( !isCurrentMonth(date)) return;
     
     const dateKey = formatDate(date);
     
     if (swapInfo.swapMode) {
       if (!swapInfo.selectedDate) {
         dispatch(updateSwapInfo({ selectedDate: dateKey }));
-       // setSelectedDate(dateKey);
       } else if (swapInfo.selectedDate === dateKey) {
         dispatch(updateSwapInfo({ selectedDate: null }));
-       // setSelectedDate(null);
       } else {
         dispatch(updateSwapInfo({ swapWithDate: dateKey }));
-       // setSwapWithDate(dateKey);
       }
     }
+
+    if(deleteInfo.deleteMode) {
+      if (deleteInfo.selectedDates.includes(dateKey)) {
+        dispatch(updateDeleteInfo({ selectedDates: deleteInfo.selectedDates.filter(d => d !== dateKey) }));
+      } else {
+        dispatch(updateDeleteInfo({ selectedDates: [...deleteInfo.selectedDates, dateKey] }));
+      }
+    }
+
   };
 
-  const isWeekend = (date) => {
-    return date.getDay() === 6 || date.getDay() === 0; // Only Saturday represents the weekend assignment
-  };
 
   const isCurrentMonth = (date) => {
     return date.getMonth() === currentDate.getMonth();
@@ -83,24 +86,6 @@ const CalendarGrid = ({
         />
       ))}
 
-
-
-       {/* {
-        schedules.list.map((schedule, index) => {
-         
-          return (
-            <DateCell
-              key={index}
-              day={schedule.date}
-              currentDate={currentDate}
-              assignment={assignments[schedule.date] || null}
-              swapMode={swapMode}
-              selectedDate={selectedDate}
-              handleDateClick={handleDateClick}
-            />
-          );
-        })
-      } */}
     </div>
   );
 };
