@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Plus, Users, RefreshCw } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux'
-import { getScheduleApi, loginUserApi } from './../redux/Actions'
+import { useSelector } from 'react-redux'
+import { useAppDispatch } from '@/hooks/use-app-dispatch';
 import { Button } from "@/components/ui/button";
-import { getTeamApi, getAssigneeReportApi } from './../redux/Actions';
+import { getTeamApi, getAssigneeReportApi } from '../redux/Actions';
 import {
   Dialog,
   DialogClose,
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Member } from '@/types/member';
 
 const TeamManagement = ({ }) => {
   const [newTeammateName, setNewTeammateName] = useState('');
@@ -29,9 +30,9 @@ const TeamManagement = ({ }) => {
   const [newTeammateTeam, setNewTeammateTeam] = useState('kites');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const dispatch = useDispatch();
-  const team = useSelector((state) => state.easyquiz.team);
-  const assigneeReport = useSelector((state) => state.easyquiz.assigneeReport);
+  const dispatch = useAppDispatch();
+  const team = useSelector((state : any) => state.easyquiz.team);
+  const assigneeReport = useSelector((state : any) => state.easyquiz.assigneeReport);
 
   useEffect(() => {
     dispatch(getTeamApi());
@@ -48,8 +49,8 @@ const TeamManagement = ({ }) => {
     )
   }
 
-  const getCountByType = (id,type) => {
-    let report = assigneeReport.list.filter(item => item.id === id)[0];
+  const getCountByType = (id: any,type: string) => {
+    let report = assigneeReport.list.filter((item: { id: any; }) => item.id === id)[0];
     if(type === 'primary') {
       return report?.primaryCount
     } else if(type === 'secondary') {
@@ -57,6 +58,15 @@ const TeamManagement = ({ }) => {
     }
     
   }
+
+  const saveChanges = () => {
+    if(!newTeammateName || !newTeammateEmail) {
+      alert('Please fill in all fields');
+      return;
+    }
+    console.log(`Adding new teammate: ${newTeammateName}, ${newTeammateEmail}, ${newTeammateTeam}`);
+  };
+
 
   return (
     <div className="lg:col-span-1 mt-6">
@@ -86,7 +96,7 @@ const TeamManagement = ({ }) => {
 
         {/* Teammate List */}
       <div className="space-y-4 mb-4  overflow-y-auto grid grid-cols-2 sm:grid-cols-2 gap-4">
-        {team.list.map((teammate) => (
+        {team.list.map((teammate : Member) => (
           <div
             key={teammate.id}
             className="p-4 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300"
@@ -162,7 +172,7 @@ const TeamManagement = ({ }) => {
                     
           <div className="flex items-center">
             <Label htmlFor="team" className="w-1/4">Team</Label>
-            <Select onValueChange={(value) => setNewTeammateTeam(value)} className="w-3/4">
+            <Select onValueChange={(value) => setNewTeammateTeam(value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a team" />
               </SelectTrigger>
@@ -177,7 +187,7 @@ const TeamManagement = ({ }) => {
             <DialogClose asChild>
               <Button variant="outline" >Cancel</Button>
             </DialogClose>
-            <Button onClick={()=>{console.log("adding new team mate")}} >Save changes</Button>
+            <Button onClick={()=>{saveChanges}} >Save changes</Button>
           </DialogFooter>
         </DialogContent>
       </form>

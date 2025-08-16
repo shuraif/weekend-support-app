@@ -1,24 +1,23 @@
-import React, { useEffect } from 'react';
+import  { useEffect } from 'react';
 import { Users, Logs } from 'lucide-react';
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { getActivityLogsApi } from '../redux/Actions'
+import { useAppDispatch } from '@/hooks/use-app-dispatch';
+import { Log } from "@/types/log";
 
 const TeamManagement = ({ }) => {
 
-  const dispatch = useDispatch();
-  const activityLogs = useSelector((state) => state.easyquiz.activityLogs);
-  const team = useSelector((state) => state.easyquiz.team);
+  const dispatch = useAppDispatch();
+  const activityLogs = useSelector((state : any) => state.easyquiz.activityLogs);
+  const team = useSelector((state : any) => state.easyquiz.team);
 
 
   useEffect(() => {
     dispatch(getActivityLogsApi());
   }, [dispatch]);
 
-  const getUserName = (userId) => {
-    console.log(JSON.stringify(team.list,0,2));
-    console.log('getUserName', userId);
-    const user = team.list.find(member => member.id == userId);
-    console.log('getUserName', userId, user);
+  const getUserName = (userId:any) => {
+    const user = team.list.find((member: { id: any; }) => member.id == userId);
     return user ? user.name : 'Unknown';
   };
 
@@ -43,7 +42,7 @@ const TeamManagement = ({ }) => {
 
         {/* Teammate List */}
         <div className="space-y-2 mb-4 max-h-160 overflow-y-auto">
-          {activityLogs.list.map((log) => (
+          {activityLogs.list.map((log:Log) => (
             <div
               key={log.id}
               className="p-3 bg-gray-50 rounded-md"

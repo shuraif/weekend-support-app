@@ -1,24 +1,26 @@
-import React from 'react';
 import DateCell from './DateCell';
 import { useSelector } from 'react-redux';
 import { format } from 'date-fns';
 import { updateSwapInfo, updateDeleteInfo } from '../redux/appSlice';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from '@/hooks/use-app-dispatch';
+
+interface CalendarGridProps {
+  currentDate: Date;
+}
 
 const CalendarGrid = ({ 
-  currentDate, 
-}) => {
+  currentDate 
+}:CalendarGridProps) => {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const schedules = useSelector((state) => state.easyquiz.schedule);
-  const swapInfo = useSelector((state) => state.easyquiz.swapInfo);
-  const deleteInfo = useSelector((state) => state.easyquiz.deleteInfo);
-  const dispatch = useDispatch();
+  const schedules = useSelector((state:any) => state.easyquiz.schedule);
+  const swapInfo = useSelector((state:any) => state.easyquiz.swapInfo);
+  const deleteInfo = useSelector((state:any) => state.easyquiz.deleteInfo);
+  const dispatch = useAppDispatch();
 
   const getDaysInMonth = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
     const startDate = new Date(firstDay);
     startDate.setDate(startDate.getDate() - firstDay.getDay());
     
@@ -31,7 +33,7 @@ const CalendarGrid = ({
     return days;
   };
 
-  const handleDateClick = (date) => {
+  const handleDateClick = (date : any) => {
 
     if ( !isCurrentMonth(date)) return;
     
@@ -49,7 +51,7 @@ const CalendarGrid = ({
 
     if(deleteInfo.deleteMode) {
       if (deleteInfo.selectedDates.includes(dateKey)) {
-        dispatch(updateDeleteInfo({ selectedDates: deleteInfo.selectedDates.filter(d => d !== dateKey) }));
+        dispatch(updateDeleteInfo({ selectedDates: deleteInfo.selectedDates.filter((d: string) => d !== dateKey) }));
       } else {
         dispatch(updateDeleteInfo({ selectedDates: [...deleteInfo.selectedDates, dateKey] }));
       }
@@ -58,11 +60,11 @@ const CalendarGrid = ({
   };
 
 
-  const isCurrentMonth = (date) => {
+  const isCurrentMonth = (date : Date) => {
     return date.getMonth() === currentDate.getMonth();
   };
 
-  const formatDate = (date) => {
+  const formatDate = (date: string) => {
     return format(date, 'yyyy-MM-dd');
   };
 
